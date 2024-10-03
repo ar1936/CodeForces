@@ -28,8 +28,8 @@
 " <Left>  Resize window horizontally (decrease width).
 " <Right> Resize window horizontally (increase width).
 "
-"
-" " *********************************************************************************
+
+" *********************************************************************************
 " *                           BASIC VIM SETTINGS                                  *
 " *********************************************************************************
 
@@ -99,11 +99,13 @@ autocmd FileType cpp setlocal autoindent smartindent                  " Enable a
 autocmd BufNewFile *.cpp 0r ~/.vim/templates/cpp_template.cpp         " Automatically insert a C++ template when creating new .cpp files
 
 " === C++: Commenting and Uncommenting ===
-" Map leader + cm to comment selected lines with '//' for C++
-autocmd FileType cpp,cc,h,cpp.macro vnoremap <leader>cm :s/^/\/\//<CR>  
+" Comment selected lines in C++ with // (Visual Mode)
+vnoremap <silent> <leader>cm :<C-u>'<,'>s/^/\/\//g<CR>
 
-" Map leader + uc to uncomment selected lines (remove '//') for C++
-autocmd FileType cpp,cc,h,cpp.macro vnoremap <leader>uc :s/^\/\///<CR>  
+" Uncomment selected lines in C++ by removing // (Visual Mode)
+vnoremap <silent> <leader>uc :<C-u>'<,'>s/^\/\///<CR>
+
+let g:ycm_confirm_extra_conf = 0
 
 " *********************************************************************************
 " *                         CODE FORMATTING AND CLEANUP                          *
