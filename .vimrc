@@ -2,32 +2,31 @@
 " *                               VIM MAPPINGS REFERENCE                          *
 " *********************************************************************************
 " Mapping    Use Case
-" \cm    Comment selected lines in C++ with //.
-" \uc    Uncomment selected lines in C++ by removing //.
-" \ff    Format the entire file for proper indentation.
-" \rw    Remove trailing whitespace in the file.
-" \r     Compile and run the current C++ file.
-" \rd    Compile and run the current C++ file with debug mode.
-" \rc    Compile the C++ file without debug mode.
-" \sh    Switch from header (.hpp) to source (.cpp) file.
-" \sc    Switch from source (.cpp) to header (.hpp) file.
-" \nt    Toggle NERDTree file explorer.
-" \wq    Save and quit.
-" \w     Save the current file.
-" \q     Quit without saving.
-" \sp    Split window horizontally.
-" \vs    Split window vertically.
+" \cm        Comment selected lines in C++.
+" \uc        Uncomment selected lines in C++.
+" \ff        Format the entire file for proper indentation.
+" \rw        Remove trailing whitespace in the file.
+" \r         Compile and run the current Python file.
+" \cr        Compile and run the current C++ file without debug mode.
+" \cd        Compile and run the current C++ file with debug mode.
+" \sh        Switch from header (.hpp) to source (.cpp) file.
+" \sc        Switch from source (.cpp) to header (.hpp) file.
+" \nt        Toggle NERDTree file explorer.
+" \wq        Save and quit.
+" \w         Save the current file.
+" \q         Quit without saving.
+" \sp        Split window horizontally.
+" \vs        Split window vertically.
 " Ctrl+h/j/k/l    Move between split windows.
-" \bl    List all open buffers.
-" \bn    Move to the next buffer.
-" \bp    Move to the previous buffer.
-" \gg    Move to the top of the file.
-" \G     Move to the bottom of the file.
-" <Up>    Resize window vertically (increase height).
-" <Down>  Resize window vertically (decrease height).
-" <Left>  Resize window horizontally (decrease width).
-" <Right> Resize window horizontally (increase width).
-"
+" \bl        List all open buffers.
+" \bn        Move to the next buffer.
+" \bp        Move to the previous buffer.
+" \gg        Move to the top of the file.
+" \G         Move to the bottom of the file.
+" <Up>       Resize window vertically (increase height).
+" <Down>     Resize window vertically (decrease height).
+" <Left>     Resize window horizontally (decrease width).
+" <Right>    Resize window horizontally (increase width).
 
 " *********************************************************************************
 " *                           BASIC VIM SETTINGS                                  *
@@ -39,6 +38,9 @@ set nocompatible                       " Disable Vi compatibility mode for enhan
 
 " Set leader key to '\' for custom shortcuts
 let mapleader = "\\"                   " Leader key is '\'
+
+" Disable confirmation for loading .ycm_extra_conf.py
+let g:ycm_confirm_extra_conf = 0       " Automatically load .ycm_extra_conf.py without prompting
 
 " *********************************************************************************
 " *                            PLUGIN MANAGEMENT (Vundle)                         *
@@ -52,11 +54,12 @@ call vundle#begin()
 
 " List of plugins to be managed by Vundle
 Plugin 'VundleVim/Vundle.vim'          " Vundle plugin manager itself
-Plugin 'ycm-core/YouCompleteMe'        " Autocompletion plugin for C++
-Plugin 'dense-analysis/ale'            " Asynchronous linting and fixing for C++
+Plugin 'ycm-core/YouCompleteMe'        " Autocompletion plugin for C++ and Python
+Plugin 'dense-analysis/ale'            " Asynchronous linting and fixing for C++ and Python
 Plugin 'vim-airline/vim-airline'       " Enhanced status line for Vim
 Plugin 'preservim/nerdtree'            " File explorer for easy navigation
 Plugin 'honza/vim-snippets'            " Snippets for faster coding
+Plugin 'psf/black'                     " Black formatter for Python
 
 " Finalize Vundle plugin setup
 call vundle#end()
@@ -85,6 +88,9 @@ nnoremap <silent> <F3> :set hlsearch!<CR>
 " *                               C++ SETTINGS                                    *
 " *********************************************************************************
 
+" === C++: Filetype Detection ===
+autocmd BufRead,BufNewFile *.cpp set filetype=cpp        " Ensure Vim correctly sets filetype for C++ files
+
 " === C++: Linting and Formatting ===
 let g:ale_linters = {'cpp': ['clangtidy', 'cppcheck']}   " Use clang-tidy and cppcheck for linting C++ code
 let g:ale_fixers = {'cpp': ['clang-format']}             " Use clang-format for fixing C++ code style
@@ -105,14 +111,29 @@ vnoremap <silent> <leader>cm :<C-u>'<,'>s/^/\/\//g<CR>
 " Uncomment selected lines in C++ by removing // (Visual Mode)
 vnoremap <silent> <leader>uc :<C-u>'<,'>s/^\/\///<CR>
 
-let g:ycm_confirm_extra_conf = 0
+" *********************************************************************************
+" *                               PYTHON SETTINGS                                 *
+" *********************************************************************************
+
+" === Python: Linting and Formatting ===
+let g:ale_linters = {'python': ['flake8']}               " Use flake8 for linting Python code
+let g:ale_fixers = {'python': ['black']}                 " Use black for fixing Python code style
+
+" === Python: Indentation and Numbering ===
+autocmd FileType python setlocal tabstop=4 shiftwidth=4 expandtab      " Use 4 spaces for tabs and indentation in Python
+autocmd FileType python setlocal number                                " Enable line numbers for Python files
+autocmd FileType python setlocal relativenumber                        " Enable relative line numbers for Python files
+autocmd FileType python setlocal autoindent smartindent                " Enable automatic indentation for Python files
+
+" === Python: Insert Template for New Python Files ===
+autocmd BufNewFile *.py 0r ~/.vim/templates/python_template.py         " Automatically insert a Python template when creating new .py files
 
 " *********************************************************************************
 " *                         CODE FORMATTING AND CLEANUP                          *
 " *********************************************************************************
 
 " Map leader + ff to format the entire file for proper indentation and spacing
-vnoremap <leader>ff :normal gg=G<CR>  " Formats the entire file for C++
+vnoremap <leader>ff :normal gg=G<CR>  " Formats the entire file for C++ and Python
 
 " Map leader + rw to remove trailing whitespaces in the entire file
 nnoremap <leader>rw :%s/\s\+$//e<CR>  " Remove trailing whitespace in the entire file
@@ -121,14 +142,30 @@ nnoremap <leader>rw :%s/\s\+$//e<CR>  " Remove trailing whitespace in the entire
 " *                           COMPILING AND RUNNING CODE                         *
 " *********************************************************************************
 
-" Map leader + r to compile and run C++ code (normal mode)
-nnoremap <leader>r :w<CR>:!g++ -std=c++17 % -o %< && ./%<<CR>  
+" Function to run Python code in a terminal with 30% width on the right side, 2-second limit
+function! RunPython()
+    exec "w" | exec "right resize 30 | term python3 %"
+endfunction
 
-" Map leader + rd to compile C++ with Debug Mode (-DLOCAL)
-nnoremap <leader>rd :w<CR>:execute '!g++ -std=c++17 -DLOCAL % -o %< && ./%<'<CR>   
+" Function to compile and run C++ without debug mode with 30% width on the right side, 2-second limit
+function! CompileCpp()
+    exec "w" | exec "right resize 30 | term bash -c \"g++ -std=c++20 " . expand('%') . " -o " . expand('%<') . ".out  ./" . expand('%<') . ".out\""
+endfunction
 
-" Map leader + rc to compile C++ without Debug Mode
-nnoremap <leader>rc :w<CR>:execute '!g++ -std=c++17 % -o %< && ./%<'<CR>           
+" Function to compile and run C++ with debug mode (-DLOCAL) with 30% width on the right side, 2-second limit
+function! CompileCppDebug()
+    exec "w" | exec "right resize 30 | term bash -c \"g++ -std=c++20 -DLOCAL " . expand('%') . " -o " . expand('%<') . ".out  ./" . expand('%<') . ".out\""
+endfunction
+
+" Map leader + r to compile and run Python code with 30% right-side split
+nnoremap <leader>r :call RunPython()<CR>
+
+" Map leader + cr to compile and run C++ without debug mode with 30% right-side split
+nnoremap <leader>cr :call CompileCpp()<CR>
+
+" Map leader + cd to compile and run C++ with debug mode with 30% right-side split
+nnoremap <leader>cd :call CompileCppDebug()<CR>
+
 
 " *********************************************************************************
 " *                             QUICK NAVIGATION                                  *
@@ -182,4 +219,5 @@ nnoremap <leader>G :G<CR>              " Move to the bottom of the file
 nnoremap <leader>bl :ls<CR>            " List all open buffers
 nnoremap <leader>bn :bnext<CR>         " Go to the next buffer
 nnoremap <leader>bp :bprev<CR>         " Go to the previous buffer
+
 
