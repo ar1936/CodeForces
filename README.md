@@ -1,6 +1,6 @@
 # Codeforces Practice Repository
 
-This repository, **codeforces**, is where I will practice competitive programming questions from platforms like **Codeforces** and **AtCoder**. I will regularly push my latest solutions and code here. The primary languages used in this repository are **C++ (cp)** and **Python (py)**.
+This repository, **codeforces**, is where I will practice competitive programming questions from platforms like **Codeforces** and **AtCoder**. I will regularly push my latest solutions and code here. The primary languages used in this repository are **C++ (cpp)** and **Python (py)**.
 
 ---
 
